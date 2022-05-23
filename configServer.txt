@@ -1,0 +1,3 @@
+sever1,localhost,2190
+sever2,localhost,2191
+sever3,localhost,2192
