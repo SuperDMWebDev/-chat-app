@@ -7,6 +7,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
+
 
 // quan ly mot nguoi dang nhap vao server duoi dang username
 public class SocketController {
@@ -17,7 +20,9 @@ public class SocketController {
 	BufferedReader reader;
 	BufferedWriter writer;
 	
-	// luu ten cac user trong client
+	Thread receiveAndProcessThread;
+	// luu ten cac user trong client.
+	
 	public List<String> users;
 	// luu cac phong hien co 
 	public List<RoomChat> rooms;
@@ -74,10 +79,10 @@ public class SocketController {
 		}
 		
 	}
-	public void createNewUser()
+	public void createNewUser(final Controller controller)
 	{
 		try {
-			writer.write("new user");
+			writer.write("new login");
 			writer.newLine();
 			writer.write(this.userName);
 			writer.newLine();
@@ -87,17 +92,72 @@ public class SocketController {
 			String connectResult=reader.readLine();
 			if(connectResult.equals("create successfully"))
 			{
+			
 				System.out.println("Connect client success");
-				System.out.println("next line"+reader.readLine());
-				System.out.println("next line"+reader.readLine());
-				System.out.println("next line"+reader.readLine());
-//				int numberUserOnline = Integer.parseInt(reader.readLine());
-//				System.out.println("number online" + numberUserOnline);
-//				for(int i=0; i<numberUserOnline;i++)
-//				{
-//					users.add(reader.readLine());
-//				}
-//				Controller.frameClientChatUi.updateNumberUserOnline();
+				Main.controller.openClientChatUi();
+				Main.controller.closeAddUserToServerUi();
+				int numberUserOnline = Integer.parseInt(reader.readLine());
+				System.out.println("numberUserOnline "+numberUserOnline);
+				for(int i=0;i<users.size();i++)
+				{
+					System.out.println("users "+users.get(i));
+				}
+				for(int i=0; i<numberUserOnline;i++)
+				{
+				
+					users.add(reader.readLine());
+				}
+			
+				Main.controller.frameClientChatUi.updateNumberUserOnline();
+			    Main.controller.frameClientChatUi.updateOnlineUserJList();
+			
+			
+			// thread nhan tin hieu
+			receiveAndProcessThread = new Thread(()->{
+				try {
+					while(true)
+					{
+						String title= reader.readLine();
+						System.out.println("title "+ title);
+						if(title==null)
+						{
+							throw new IOException();
+						}
+						switch(title)
+						{			
+						case "new user online":{
+							String userN = reader.readLine();
+							users.add(userN);
+							controller.frameClientChatUi.updateNumberUserOnline();
+							controller.frameClientChatUi.updateOnlineUserJList();
+						}
+						case "new room":{
+							int roomId = Integer.parseInt(reader.readLine());
+							String whoCreate= reader.readLine();
+							String name = reader.readLine();
+							String type = reader.readLine();
+							int roomUser= Integer.parseInt(reader.readLine());
+							List<String> users = new ArrayList<String>();
+							for (int i=0; i<roomUser; i++)
+							{
+								users.add(reader.readLine());
+							}
+							RoomChat newRoom= new RoomChat(roomId,name,type,users);
+							Main.socketController.rooms.add(newRoom);
+							break;
+						}
+							default:
+								break;
+						}
+					}
+				}catch(IOException e)
+				{
+					JOptionPane.showMessageDialog(Main.controller.frameClientChatUi, "Server đã đóng, ứng dụng sẽ thoát", "Thông báo",
+							JOptionPane.INFORMATION_MESSAGE);
+				}
+			});
+			receiveAndProcessThread.start();
+			}else {
 				
 			}
 			
@@ -106,6 +166,26 @@ public class SocketController {
 			e.printStackTrace();
 		}
 		
+	}
+	public void createPrivateRoom(String name) {
+
+		try {
+			writer.write("create new room");
+			writer.newLine();
+			writer.write(name); // name cua nguoi chuan bi tro chuyen
+			writer.newLine();
+			writer.write("private"); // kieu room
+			writer.newLine();
+			writer.write("2"); // so luong
+			writer.newLine();
+			writer.write(userName);
+			writer.newLine();
+			writer.write(name);
+			writer.newLine();
+			writer.flush();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
 	}
 	
 }

@@ -20,11 +20,13 @@ public class SocketController {
 	
 	// list cac client connect
 	public static List<ClientInformation> client;
-
+	// list cac room dang ton tai 
+	public static List<RoomChat> rooms;
 	public static String getServerIp()
 	{
 		
-	
+
+
 		try {
 			// lay duoc ip address cua may tinh 
 		    InetAddress myIP=InetAddress.getLocalHost();
@@ -58,6 +60,7 @@ public class SocketController {
 		try {
 			server = new ServerSocket(portNumber);
 			client=new ArrayList<ClientInformation>();
+			rooms = new ArrayList<RoomChat>();
 			Thread thread = new Thread(() -> {	
 				try {
 				

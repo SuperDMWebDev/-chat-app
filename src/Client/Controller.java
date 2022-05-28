@@ -5,13 +5,17 @@ public class Controller {
 	public AddServerUi frameAddServerUi;
 	public EditServerUi frameEditServerUi;
 	public AddUserToServerUi frameAddUserToServerUi;
-	public static ClientChatUi frameClientChatUi;
+	public ClientChatUi frameClientChatUi ;
 	
 	public void start()
 	{
 		ClientUi frame1= new ClientUi(this);
 		frameClientUi=frame1;
 		frameClientUi.setVisible(true);
+	}
+	public void closeClientUi()
+	{
+		frameClientUi.setVisible(false);
 	}
 	public void openAddServerUi()
 	{
@@ -45,10 +49,10 @@ public class Controller {
 		frameAddUserToServerUi.setVisible(false);
 		frameAddUserToServerUi.dispose();
 	}
-	public void openClientChatUi(String userName)
+	public void openClientChatUi()
 	{
-		ClientChatUi frame1= new ClientChatUi(this,userName);
-		frameClientChatUi=frame1;
+		ClientChatUi frame1 =new ClientChatUi(this);;
+		frameClientChatUi = frame1;
 		frameClientChatUi.setVisible(true);
 	}
 	public void closeClientChatUi()

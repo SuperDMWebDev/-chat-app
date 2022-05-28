@@ -115,6 +115,7 @@ public class ClientUi extends JFrame {
 					String ipSelected=table.getModel().getValueAt(row,1).toString();
 					String portSelected=table.getModel().getValueAt(row, 2).toString();
 					int portIntegerSelected=Integer.parseInt(portSelected);
+				
 					controller.openEditServerUi(row,serverNameSelected, ipSelected, portIntegerSelected);
 					
 					
@@ -187,6 +188,7 @@ public class ClientUi extends JFrame {
 					if(status=="Working")
 					{						
 						controller.openAddUserToServerUi(serverName,ipServer,portServer);
+						controller.closeClientUi();
 					}
 					
 				}

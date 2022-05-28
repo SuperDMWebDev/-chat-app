@@ -9,14 +9,13 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-
-
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
@@ -36,8 +35,12 @@ public class ClientChatUi extends JFrame {
 	private static final String TEXT_SUBMIT = "text-submit";
 	private static final String INSERT_BREAK = "insert-break";
 	JLabel lblNewLabel_6 = new JLabel("");
-	JList<String> serverUsers;
-	/**
+
+	JList<String> onlineUserJList;
+
+
+	
+	/**	
 	 * Launch the application.
 	 */
 //	public static void main(String[] args) {
@@ -56,25 +59,38 @@ public class ClientChatUi extends JFrame {
 	/**
 	 * Create the frame.
 	 */
+	// hien thi ra so nguoi dang online
 	public void updateNumberUserOnline() {
 		// luu vao serverData ( chua toan bo thong tin client ) 
 		Main.socketController.serverData.connectAccount = Main.socketController.users.size();
 		lblNewLabel_6.setText(Integer.toString(Main.socketController.serverData.connectAccount));
-		
+	
 		// hien thi ra ben ngoai 
 	}
 	public void updateOnlineUserJList() {
-//		System.out.println("online user",Main.socketController.users);
-		List <String> listUser= Main.socketController.users;
-		serverUsers.setListData(listUser.toArray(new String[0]));
-		System.out.println("lay danh sach users tu server");
-		for(int i=0;i<listUser.size();i++){
-		    System.out.println(listUser.get(i));
-		} 
+		System.out.println("online user"+Main.socketController.users);
+		if(Main.socketController.users!=null && onlineUserJList!=null)
+		{			
+//			ArrayList<String> listUser= new ArrayList<String>(); 
+//			listUser.add("minh1");
+//			System.out.println("lay danh sach users tu server");
+//			for(int i=0;i<Main.socketController.users.size();i++){
+//				String tenUser= Main.socketController.users.get(i);
+//				System.out.println("ten user "+tenUser);
+//				listUser.add(tenUser);
+//			} 
+//			
+//			JList serverUsers = new JList(listUser.toArray());
+//			scrollPane_1.remove(serverUsers);
+//			scrollPane_1.add(serverUsers);
+//			scrollPane_1.repaint();
+			onlineUserJList.setListData(Main.socketController.users.toArray(new String[0]));
+
+		}
 		
 	}
-	public ClientChatUi(final Controller controller,String userName) {
-		serverUsers = new JList<String>();
+	public ClientChatUi(final Controller controller) {
+		
 		updateOnlineUserJList();
 //		serverUsers.addMouseListener(new MouseAdapter() {
 //			public void mouseClicked(MouseEvent e) {
@@ -134,7 +150,7 @@ public class ClientChatUi extends JFrame {
 		
 		JLabel lblNewLabel_3 = new JLabel("");
 		lblNewLabel_3.setBounds(126, 54, 79, 14);
-		lblNewLabel_3.setText(userName);
+		lblNewLabel_3.setText(Main.socketController.getUserName());
 		contentPane.add(lblNewLabel_3);
 		
 		JButton btnNewButton = new JButton("Send");
@@ -148,7 +164,7 @@ public class ClientChatUi extends JFrame {
 		textArea.setEditable(false);
 		
 		JTextArea textArea_1 = new JTextArea();
-		textArea_1.setBounds(242, 275, 154, 32);
+		textArea_1.setBounds(242, 275, 154, 97);
 		textArea_1.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1, true));
 		
 		textArea_1.setLineWrap(true);
@@ -169,41 +185,62 @@ public class ClientChatUi extends JFrame {
 		contentPane.add(lblNewLabel_4);
 		
 		JLabel lblIp = new JLabel("IP Server : ");
-		lblIp.setBounds(43, 121, 94, 14);
+		lblIp.setBounds(43, 121, 69, 14);
 		contentPane.add(lblIp);
 		
-		JLabel lblNewLabel_1_1 = new JLabel("");
-		lblNewLabel_1_1.setBounds(126, 155, 82, 14);
-		if(serverMain!=null)
-		{
-			lblNewLabel_1_1.setText(serverMain.getIp());
-		}
-		contentPane.add(lblNewLabel_1_1);
 		
 		JLabel lblPortServer = new JLabel("Port Server : ");
-		lblPortServer.setBounds(43, 155, 94, 14);
+		lblPortServer.setBounds(43, 155, 79, 14);
 		contentPane.add(lblPortServer);
 		
-		JLabel lblNewLabel_1_1_1 = new JLabel("");
-		lblNewLabel_1_1_1.setBounds(123, 121, 82, 14);
-		if(serverMain!=null)
-		{
-			lblNewLabel_1_1.setText(Integer.toString(serverMain.getPort()));
-		}
-		contentPane.add(lblNewLabel_1_1_1);
 		
-		JLabel lblNewLabel_5 = new JLabel("List user in server");
-		lblNewLabel_5.setBounds(555, 29, 147, 14);
+		JLabel lblNewLabel_5 = new JLabel("List user in server : ");
+		lblNewLabel_5.setBounds(555, 29, 105, 14);
 		contentPane.add(lblNewLabel_5);
-		
-		JScrollPane scrollPane_1 = new JScrollPane(serverUsers);
+		onlineUserJList = new JList<String>();
+		onlineUserJList.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if(e.getClickCount()==2)
+				{
+					// doi tuong duoc nhan de chat
+					String clickedUserName=onlineUserJList.getSelectedValue();
+					System.out.println("Double click " + clickedUserName);
+					RoomChat findRoom = RoomChat.findPrivateRoom(Main.socketController.rooms, clickedUserName);
+					if(findRoom==null)
+					{
+						Main.socketController.createPrivateRoom(clickedUserName);
+					}
+
+					
+				}
+			}
+		});
+		JScrollPane scrollPane_1 = new JScrollPane(onlineUserJList);
 		scrollPane_1.setBorder(BorderFactory.createTitledBorder("Choose one in list to connect"));
-		scrollPane_1.setBounds(555, 66, 2, 2);
+		scrollPane_1.setBounds(555, 66, 179, 193);
+		scrollPane_1.revalidate();
 		contentPane.add(scrollPane_1);
 		
 		
-		lblNewLabel_6.setBounds(659, 29, 94, 14);
+		lblNewLabel_6.setBounds(670, 29, 117, 14);
 		contentPane.add(lblNewLabel_6);
+		
+		JLabel lblNewLabel_7 = new JLabel("");
+		lblNewLabel_7.setBounds(117, 121, 88, 14);
+		if(serverMain!=null)
+		{
+			lblNewLabel_7.setText(serverMain.getIp());
+		}
+		
+		contentPane.add(lblNewLabel_7);
+		
+		JLabel lblNewLabel_8 = new JLabel("");
+		lblNewLabel_8.setBounds(117, 155, 88, 14);
+		if(serverMain!=null)
+		{
+			lblNewLabel_8.setText(String.valueOf(serverMain.getPort()));
+		}
+		contentPane.add(lblNewLabel_8);
 		
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

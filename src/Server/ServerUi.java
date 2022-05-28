@@ -6,6 +6,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -23,6 +25,8 @@ public class ServerUi extends JFrame {
 	private JTextField textField_1;
 	private JTextField textField_2;
 	private Boolean isOpen = false;
+	
+	public static JTable table;
 
 	/**
 	 * Launch the application.
@@ -42,7 +46,17 @@ public class ServerUi extends JFrame {
 
 	/**
 	 * Create the frame.
-	 */
+	 **/
+	public void updateClientTable()
+	{
+		Object[][] tableContent = new Object[Main.socketController.client.size()][2];
+		for (int i = 0; i < Main.socketController.client.size(); i++) {
+			tableContent[i][0] = Main.socketController.client.get(i).getUserName();
+			tableContent[i][1] = Main.socketController.client.get(i).getPort();
+		}
+		table.setModel(new DefaultTableModel(tableContent,new String[] {"Client name","Client port"}));
+	}
+	
 	public ServerUi(final Controller controller) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 341);
@@ -84,7 +98,8 @@ public class ServerUi extends JFrame {
 		DefaultTableModel dtm = new DefaultTableModel();
 		dtm.addColumn("Client Name");
 		dtm.addColumn("Client Port");
-		JTable table = new JTable(dtm);
+		table = new JTable(dtm);
+		table.revalidate();
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setBounds(38, 150, 2, 2);
 		scrollPane.setSize(244,100);

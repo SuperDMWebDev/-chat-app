@@ -96,8 +96,7 @@ public class AddUserToServerUi extends JFrame {
 				{
 					ServerData findServer=readToChooseServer(ipServer,portServer);
 					Main.socketController = new SocketController(userName,findServer);
-					Main.socketController.createNewUser();
-					controller.openClientChatUi(userName);
+					Main.socketController.createNewUser(controller);
 					controller.closeAddUserToServerUi();
 				}
 				

@@ -1,5 +1,6 @@
 package Server;
 import java.net.*;
+import java.util.List;
 import java.io.*;
 public class ClientInformation {
 	private String userName;
@@ -7,6 +8,19 @@ public class ClientInformation {
 	private Socket socket;
 	private BufferedReader reader;
 	private BufferedWriter writer;
+	
+	
+	public static ClientInformation findClient (List<ClientInformation> listClient, String userName)
+	{
+		for(ClientInformation client:listClient)
+		{
+			if(client.userName.equals(userName))
+			{
+				return client;
+			}
+		}
+		return null;
+	}
 	public ClientInformation() {
 		super();
 	}
